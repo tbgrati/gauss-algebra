@@ -21,9 +21,18 @@ def create_tridiagonal_matrix(n):
     return matrix
 
 
+def create_array(n):
+    random_array = np.random.uniform(0.1, 9.9, size=n)
+    return random_array
+
+
 def create_matrix(n):
     matrix = np.round(np.random.uniform(0, 10, (n, n)), 1)
     return matrix
+
+def multiply_matrix_by_vector(A, x):
+    result_dot = np.dot(A, x)
+    return result_dot
 
 
 def measure_time(func, args):
@@ -59,7 +68,7 @@ def parcial_pivot_gauss(A,b):
     # Augmented matrix
     Ab = np.hstack([A, b.reshape(-1, 1)])
 
-    # Forward elimination with partial pivoting
+    # Descending process with partial pivoting
     for i in range(n):
         # Pivoting
         max_row = np.argmax(np.abs(Ab[i:n, i])) + i
@@ -71,7 +80,7 @@ def parcial_pivot_gauss(A,b):
             factor = Ab[j, i] / Ab[i, i]
             Ab[j, i:] -= factor * Ab[i, i:]
 
-    # Back substitution
+    # Ascending process
     x = np.zeros(n)
     for i in range(n-1, -1, -1):
         x[i] = (Ab[i, -1] - np.dot(Ab[i, i+1:n], x[i+1:n])) / Ab[i, i]
@@ -102,3 +111,56 @@ def tridiagonal_optimized_gauss(A,b):
         x[i] = di[i] - ci[i] * x[i+1]
     
     return x
+
+
+
+def tri_time_dif(n):
+    tri_n_matrix = create_tridiagonal_matrix(n)
+    tri_n_array = create_array(n)
+    basic_gauss_time = measure_time(basic_gauss, (tri_n_matrix, tri_n_array))
+    optimized_gauss_time = measure_time(tridiagonal_optimized_gauss, (tri_n_matrix, tri_n_array))
+
+    return basic_gauss_time - optimized_gauss_time
+
+
+# prints cumulative precision diff between basic gauss and parcial pivot gauss
+def precision_dif(n):
+    n_matrix = create_matrix(n)
+    n_array = create_array(n)
+
+    basic_gauss_x = basic_gauss(n_matrix, n_array)
+    parcial_pivot_x = parcial_pivot_gauss(n_matrix, n_array)
+
+    basic_est = multiply_matrix_by_vector(n_matrix, basic_gauss_x)
+    pivot_est = multiply_matrix_by_vector(n_matrix, parcial_pivot_x)
+
+    basic_cumulative_error = 0
+    pivot_cumulative_errir = 0
+
+    for i in range(1,n):
+        basic_cumulative_error += abs(n_array[i] - basic_est[i])
+        pivot_cumulative_errir += abs(n_array[i] - pivot_est[i])
+
+    print(basic_cumulative_error)
+    print(pivot_cumulative_errir)
+        
+
+
+def main():
+
+    print("Time comparison between basic Gauss and optimized Gauss for tridiagonal matrix")
+
+    print("\nTime difference for 100x100 tridiagonal matrix:")
+    print(tri_time_dif(100))
+    print("Time difference for 1000x1000 tridiagonal matrix:")
+    print(tri_time_dif(1000))
+
+    print("\nPrecision comparison between 30x30 and 50x50 matrix")
+
+    print("\nPrecision diff for 30x30 matrix")
+    precision_dif(30)
+    print("\nPrecision diff for 50x50 matrix")
+    precision_dif(50)
+    
+
+main()
