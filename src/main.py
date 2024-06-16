@@ -135,15 +135,29 @@ def precision_dif(n):
     pivot_est = multiply_matrix_by_vector(n_matrix, parcial_pivot_x)
 
     basic_cumulative_error = 0
-    pivot_cumulative_errir = 0
+    pivot_cumulative_error = 0
 
-    for i in range(1,n):
+    for i in range(n):  # Correcting the range to include 0
         basic_cumulative_error += abs(n_array[i] - basic_est[i])
-        pivot_cumulative_errir += abs(n_array[i] - pivot_est[i])
+        pivot_cumulative_error += abs(n_array[i] - pivot_est[i])
 
-    print(basic_cumulative_error)
-    print(pivot_cumulative_errir)
-        
+    total_true_value = sum(abs(n_array[i]) for i in range(n))  # Sum of absolute values of true values
+
+    # Calculating relative error
+    basic_relative_error = basic_cumulative_error / total_true_value
+    pivot_relative_error = pivot_cumulative_error / total_true_value
+
+    # Calculating percentage error
+    basic_percentage_error = basic_relative_error * 100
+    pivot_percentage_error = pivot_relative_error * 100
+
+    print(f"Basic Gaussian Cumulative Error: {basic_cumulative_error}")
+    print(f"Partial Pivot Gaussian Cumulative Error: {pivot_cumulative_error}")
+    print(f"Basic Gaussian Relative Error: {basic_relative_error}")
+    print(f"Partial Pivot Gaussian Relative Error: {pivot_relative_error}")
+    print(f"Basic Gaussian Percentage Error: {basic_percentage_error}%")
+    print(f"Partial Pivot Gaussian Percentage Error: {pivot_percentage_error}%")
+
 
 
 def main():
